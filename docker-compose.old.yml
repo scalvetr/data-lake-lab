@@ -109,12 +109,9 @@ services:
       #- shared-workspace:/opt/workspace
     networks:
       - big-data-lab-net
-
+      -
   zeppelin:
-    build:
-      context: docker/zeppelin/
-      labels:
-        - scalvetr/spark
+    image: apache/zeppelin:0.9.0
     hostname: zeppelin
     container_name: data-lake-zeppelin
     ports:
@@ -144,3 +141,11 @@ volumes:
   zookeeper-data:
     name: "big-data-lab-zookeeper-data"
     driver: local
+#  zookeeper-logs:
+#  kafka-logs:
+#  nifi-logs:
+#  zeppelin-notebooks:
+#  zeppelin-logs:
+#  shared-workspace:
+#    name: "hadoop-distributed-file-system"
+#    driver: local

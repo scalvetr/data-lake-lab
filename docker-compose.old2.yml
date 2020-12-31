@@ -40,16 +40,14 @@ services:
     hostname: nifi
     container_name: data-lake-nifi
     environment:
-      NIFI_WEB_HTTP_PORT: 8081
-      NIFI_WEB_HTTPS_PORT: 8444
+      NIFI_WEB_HTTP_PORT: 8082
+      NIFI_WEB_HTTPS_PORT: 8445
     ports:
-      - "8081:8081"
-      - "8444:8444"
+      - "8082:8082"
+      - "8445:8445"
     volumes:
       - ./ws/nifi/logs:/opt/nifi/nifi-current/logs
       - ./ws/shared:/opt/workspace
-      #- nifi-logs:/opt/nifi/nifi-current/logs
-      #- shared-workspace:/opt/workspace
     networks:
       - big-data-lab-net
     depends_on:
@@ -97,31 +95,23 @@ services:
       - big-data-lab-net
 
   spark:
-    image: bitnami/spark:3.0.1
+    #image: apache/zeppelin:0.9.0
+    build:
+      context: docker/spark/
+      args:
+        ZEPPELIN_HOME: /zeppelin
+      labels:
+        - scalvetr/spark
     hostname: spark
     container_name: data-lake-spark
     ports:
       - "7077:7077"
-    environment:
-      SPARK_MODE: master
-    volumes:
-      - ./ws/shared:/opt/workspace
-      #- shared-workspace:/opt/workspace
-    networks:
-      - big-data-lab-net
-
-  zeppelin:
-    build:
-      context: docker/zeppelin/
-      labels:
-        - scalvetr/spark
-    hostname: zeppelin
-    container_name: data-lake-zeppelin
-    ports:
       - "8080:8080"
+      - "8081:8081"
       - "8443:8443"
       - "4040:4040"
     environment:
+      SPARK_MODE: master
       ZEPPELIN_LOG_DIR: /zeppelin/logs
       ZEPPELIN_NOTEBOOK_DIR: /zeppelin/notebook
     volumes:
@@ -129,9 +119,6 @@ services:
       - ./ws/zeppelin/notebooks:/zeppelin/notebook
       - ./ws/zeppelin/logs:/zeppelin/logs
       - ./ws/zeppelin/conf/log4j.properties:/zeppelin/conf/log4j.properties
-      #- shared-workspace:/opt/workspace
-      #- zeppelin-notebooks:/zeppelin/notebook
-      #- zeppelin-logs:/zeppelin/logs
     networks:
       - big-data-lab-net
 

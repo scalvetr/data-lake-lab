@@ -3,15 +3,16 @@
 ## Tools
 
 
-| Tool              | Image                              | Ports          | Volume           |
-| ----------------- | ---------------------------------- | -------------- | ---------------- |
-| zookeeper         | zookeeper:3.6.2                    | 2181           | zookeeper-data   |
-| kafka             | wurstmeister/kafka:2.13-2.6.0      | 9092           | kafka-logs       |
-| nifi              | apache/nifi:1.12.1                 | 8081,8444      | shared-workspace |
-| spark             | bitnami/spark:3.0.1                | 7077           | shared-workspace |
-| elasticsearch     | elasticsearch/elasticsearch:7.6.2  | 9200,9300      | - |
-| kibana            | kibana/kibana:7.10.1               | 5601           | - |
-| zeppelin          | apache/zeppelin:0.9.0              | 8080,8443,4040 | shared-workspace |
+| Tool              | Image                              | Ports           | Volume           |
+| ----------------- | ---------------------------------- | --------------- | ---------------- |
+| zookeeper         | zookeeper:3.6.2                    | 2181            | zookeeper-data   |
+| kafka             | wurstmeister/kafka:2.13-2.6.0      | 9092            | kafka-logs       |
+| nifi              | apache/nifi:1.12.1                 | 8081,8444       | shared-workspace |
+| spark             | bitnami/spark:3.0.1                | 7077            | shared-workspace |
+| hadoop            | cybermaggedon/hadoop:2.10.0        | 9000,8020,50070 | shared-workspace |
+| elasticsearch     | elasticsearch/elasticsearch:7.6.2  | 9200,9300       | - |
+| kibana            | kibana/kibana:7.10.1               | 5601            | - |
+| zeppelin          | apache/zeppelin:0.9.0              | 8080,8443,4040  | shared-workspace |
 
 ## Installation
 
