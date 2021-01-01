@@ -1,6 +1,12 @@
 /data-lake-lab.iml
 /README-bkp.md
-/ws/
 /.idea/
 /workspace/mysql/data/
 /workspace/hdfs/namenode/
+/ws/zookeeper/logs/
+/ws/zeppelin/logs/
+/ws/nifi/logs/
+/ws/kafka/logs/
+/ws/hadoop/logs/
+/ws/elasticsearch/logs/
+/ws/hadoop/data/

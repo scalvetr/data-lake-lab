@@ -1,0 +1,54 @@
+version: "3.5"
+services:
+
+  nifi:
+    image: apache/nifi:1.12.1
+    hostname: nifi
+    container_name: data-lake-nifi
+    environment:
+      NIFI_WEB_HTTP_PORT: 8081
+      NIFI_WEB_HTTPS_PORT: 8444
+    ports:
+      - "8081:8081"
+      - "8444:8444"
+    volumes:
+      - ./ws/nifi/logs:/opt/nifi/nifi-current/logs
+      - ./ws/shared:/opt/workspace
+      #- nifi-logs:/opt/nifi/nifi-current/logs
+      #- shared-workspace:/opt/workspace
+    networks:
+      - big-data-lab-net
+    depends_on:
+      - zookeeper
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    hostname: elasticsearch
+    container_name: data-lake-elasticsearch
+    volumes:
+      - ./ws/elasticsearch/logs:/usr/share/elasticsearch/logs/
+    environment:
+      discovery.type: single-node
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - big-data-lab-net
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.10.1
+    hostname: kibana
+    container_name: data-lake-kibana
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"
+    networks:
+      - big-data-lab-net
+    depends_on:
+      - elasticsearch
+
+networks:
+  big-data-lab-net:
+    external:
+      name: cda
