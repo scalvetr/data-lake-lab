@@ -89,23 +89,25 @@ RUN echo "$LOG_TAG Install scala" && \
     rm -rf /var/lib/apt/lists/*
 
 
-
-RUN cd /opt
 RUN wget -O spark.tgz https://downloads.apache.org/spark/spark-3.0.1/spark-3.0.1-bin-hadoop2.7.tgz
-RUN tar -xvzf spark.tgz
-RUN mv spark-* spark
-RUN rm -fR spark.tgz
-
-ENV SPARK_HOME=/opt/spark
-ENV PATH="${SPARK_HOME}/bin:${PATH}"
-
 RUN wget -O hadoop.tgz https://downloads.apache.org/hadoop/common/hadoop-2.10.1/hadoop-2.10.1.tar.gz
+
+
+RUN tar -xvzf spark.tgz
+RUN rm -fR spark.tgz
+RUN mv spark-* /opt/spark
+
 RUN tar -xvzf hadoop.tgz
-RUN mv hadoop-* hadoop
 RUN rm -fR hadoop.tgz
+RUN mv hadoop-* /opt/hadoop
 
 ENV HADOOP_HOME=/opt/hadoop
-ENV PATH="${HADOOP_HOME}/bin:${PATH}"
+ENV PATH="${HADOOP_HOME}/bin:${HADOOP_HOME}/sbin:${PATH}"
+
+ENV SPARK_HOME=/opt/spark
+ENV PATH="${SPARK_HOME}/bin:${SPARK_HOME}/sbin:${PATH}"
+ENV PYSPARK_PYTHON=/usr/bin/python3
+
 
 USER 1000
 

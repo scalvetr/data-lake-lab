@@ -1,8 +1,8 @@
 /data-lake-lab.iml
 /README-bkp.md
 /.idea/
-/workspace/mysql/data/
-/workspace/hdfs/namenode/
+/bde2020/workspace/mysql/data/
+/bde2020/workspace/hdfs/namenode/
 /ws/zookeeper/logs/
 /ws/zeppelin/logs/
 /ws/nifi/logs/

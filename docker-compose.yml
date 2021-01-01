@@ -129,6 +129,8 @@ services:
       - ./ws/zeppelin/notebooks:/zeppelin/notebook
       - ./ws/zeppelin/logs:/zeppelin/logs
       - ./ws/zeppelin/conf/log4j.properties:/zeppelin/conf/log4j.properties
+      - ./ws/zeppelin/conf/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
+      - ./ws/zeppelin/conf/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml
       #- shared-workspace:/opt/workspace
       #- zeppelin-notebooks:/zeppelin/notebook
       #- zeppelin-logs:/zeppelin/logs
