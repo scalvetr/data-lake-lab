@@ -24,10 +24,10 @@ RUN echo "$LOG_TAG install tini related packages" && \
     dpkg -i tini.deb && \
     rm tini.deb
 
-ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-RUN echo "$LOG_TAG Install java11" && \
+ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+RUN echo "$LOG_TAG Install java8" && \
     apt-get -y update && \
-    apt-get install -y openjdk-11-jdk && \
+    apt-get install -y openjdk-8-jdk && \
     rm -rf /var/lib/apt/lists/*
 
 # should install conda first before numpy, matploylib since pip and python will be installed by conda

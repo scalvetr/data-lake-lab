@@ -12,7 +12,8 @@ services:
       - ./ws/zookeeper/logs:/logs
       #- zookeeper-data:/data
     networks:
-      - big-data-lab-net
+      big-data-lab-net:
+        ipv4_address: 172.27.1.5
 
   kafka:
     image: wurstmeister/kafka:2.13-2.6.0
@@ -31,7 +32,8 @@ services:
       - ./ws/kafka/logs:/kafka/logs
       #- kafka-logs:/kafka/logs
     networks:
-      - big-data-lab-net
+      big-data-lab-net:
+        ipv4_address: 172.27.1.6
     depends_on:
       - zookeeper
 
@@ -50,36 +52,12 @@ services:
       - ./ws/shared:/opt/workspace
       #- nifi-logs:/opt/nifi/nifi-current/logs
       #- shared-workspace:/opt/workspace
-    networks:
-      - big-data-lab-net
     depends_on:
       - zookeeper
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
-    hostname: elasticsearch
-    container_name: big-data-lab-elasticsearch
-    volumes:
-      - ./ws/elasticsearch/logs:/usr/share/elasticsearch/logs/
-    environment:
-      discovery.type: single-node
-    ports:
-      - "9200:9200"
-      - "9300:9300"
     networks:
-      - big-data-lab-net
+      big-data-lab-net:
+        ipv4_address: 172.27.1.10
 
-  kibana:
-    image: docker.elastic.co/kibana/kibana:7.10.1
-    hostname: kibana
-    container_name: big-data-lab-kibana
-    ports:
-      - "5601:5601"
-    environment:
-      ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"
-    networks:
-      - big-data-lab-net
-    depends_on:
-      - elasticsearch
 
   hdfs-namenode:
     image: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
@@ -92,7 +70,9 @@ services:
     ports:
       - "50070:50070"
     networks:
-      - big-data-lab-net
+      big-data-lab-net:
+        ipv4_address: 172.27.1.11
+
 
   hdfs-datanode:
     image: bde2020/hadoop-datanode:2.0.0-hadoop2.7.4-java8
@@ -108,10 +88,13 @@ services:
     ports:
       - "50075:50075"
     networks:
-      - big-data-lab-net
+      big-data-lab-net:
+        ipv4_address: 172.27.1.12
+
 
   spark-master:
     image: bde2020/spark-master:2.4.0-hadoop2.7
+    hostname: spark-master
     container_name: big-data-lab-spark-master
     ports:
       - 8080:8080
@@ -119,22 +102,84 @@ services:
     environment:
       CORE_CONF_fs_defaultFS: "hdfs://hdfs-namenode:8020"
     networks:
-      - big-data-lab-net
+      big-data-lab-net:
+        ipv4_address: 172.27.1.13
 
   spark-worker:
     image: bde2020/spark-worker:2.4.0-hadoop2.7
+    hostname: spark-worker
     container_name: big-data-lab-spark-worker
     depends_on:
       - spark-master
     environment:
       SPARK_MASTER: "spark://spark-master:7077"
       CORE_CONF_fs_defaultFS: "hdfs://hdfs-namenode:8020"
-      HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://hive-metastore/metastore"
     ports:
       - 8081:8081
     networks:
-      - big-data-lab-net
+      big-data-lab-net:
+        ipv4_address: 172.27.1.14
 
+  hive-server:
+    image: bde2020/hive:2.3.2
+    hostname: hive-server
+    container_name: big-data-lab-hive-server
+    environment:
+      CORE_CONF_fs_defaultFS: "hdfs://hdfs-namenode:8020"
+      CORE_CONF_hadoop_http_staticuser_user: "root"
+      HDFS_CONF_dfs_webhdfs_enabled: "true"
+      HDFS_CONF_dfs_permissions_enabled: "false"
+      HIVE_SITE_CONF_hive_metastore_warehouse_dir: "/warehouse/tablespace/managed"
+    depends_on:
+      - hdfs-datanode
+    ports:
+      - "10000:10000"
+    networks:
+      big-data-lab-net:
+        ipv4_address: 172.27.1.15
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    hostname: elasticsearch
+    container_name: big-data-lab-elasticsearch
+    volumes:
+      - ./ws/elasticsearch/logs:/usr/share/elasticsearch/logs/
+    environment:
+      discovery.type: single-node
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      big-data-lab-net:
+        ipv4_address: 172.27.1.21
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.10.1
+    hostname: kibana
+    container_name: big-data-lab-kibana
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"
+    networks:
+      big-data-lab-net:
+        ipv4_address: 172.27.1.22
+    depends_on:
+      - elasticsearch
+
+  mysql:
+    image: mysql:8.0.22
+    hostname: mysql
+    container_name: big-data-lab-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_USER: "big-data-user"
+      MYSQL_PASSWORD: "big-data-user"
+      MYSQL_ROOT_PASSWORD: "root"
+    networks:
+      big-data-lab-net:
+        ipv4_address: 172.27.1.30
 
   zeppelin:
     build:
@@ -149,23 +194,30 @@ services:
       ZEPPELIN_LOG_DIR: /zeppelin/logs
       ZEPPELIN_NOTEBOOK_DIR: /zeppelin/notebook
       HADOOP_USER_NAME: root
+      SPARK_SUBMIT_OPTIONS: "--files /opt/workspace/jdbs/mysql-connector-java.jar,/opt/workspace/jdbs/postgress.jar"
     volumes:
       - ./ws/shared:/opt/workspace
       - ./ws/zeppelin/notebooks:/zeppelin/notebook
       - ./ws/zeppelin/logs:/zeppelin/logs
+      #- ./ws/zeppelin/conf/interpreter.json:/zeppelin/conf/interpreter.json:rw
       - ./ws/zeppelin/conf/log4j.properties:/zeppelin/conf/log4j.properties
       - ./ws/zeppelin/conf/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
       - ./ws/zeppelin/conf/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml
+      - ./ws/zeppelin/conf/hive-site.xml:/opt/hadoop/etc/hadoop/hive-site.xml
       #- shared-workspace:/opt/workspace
       #- zeppelin-notebooks:/zeppelin/notebook
       #- zeppelin-logs:/zeppelin/logs
     networks:
-      - big-data-lab-net
+      big-data-lab-net:
+        ipv4_address: 172.27.1.4
 
 networks:
   big-data-lab-net:
     name: "big-data-lab-net"
-    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.27.0.0/16
 
 volumes:
   zookeeper-data:
