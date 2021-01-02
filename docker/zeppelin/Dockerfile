@@ -89,8 +89,9 @@ RUN echo "$LOG_TAG Install scala" && \
     rm -rf /var/lib/apt/lists/*
 
 
-RUN wget -O spark.tgz https://downloads.apache.org/spark/spark-3.0.1/spark-3.0.1-bin-hadoop2.7.tgz
-RUN wget -O hadoop.tgz https://downloads.apache.org/hadoop/common/hadoop-2.10.1/hadoop-2.10.1.tar.gz
+#RUN wget -O spark.tgz https://archive.apache.org/dist/spark/spark-3.0.1/spark-3.0.1-bin-hadoop2.7.tgz
+RUN wget -O spark.tgz https://archive.apache.org/dist/spark/spark-2.4.7/spark-2.4.7-bin-hadoop2.7.tgz
+RUN wget -O hadoop.tgz https://archive.apache.org/dist/hadoop/common/hadoop-2.7.4/hadoop-2.7.4.tar.gz
 
 
 RUN tar -xvzf spark.tgz

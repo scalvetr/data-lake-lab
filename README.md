@@ -7,12 +7,14 @@
 | ----------------- | ---------------------------------- | --------------- | ---------------- |
 | zookeeper         | zookeeper:3.6.2                    | 2181            | zookeeper-data   |
 | kafka             | wurstmeister/kafka:2.13-2.6.0      | 9092            | kafka-logs       |
-| nifi              | apache/nifi:1.12.1                 | 8081,8444       | shared-workspace |
-| spark             | bitnami/spark:3.0.1                | 7077            | shared-workspace |
-| hadoop            | cybermaggedon/hadoop:2.10.0        | 9000,8020,50070 | shared-workspace |
+| nifi              | apache/nifi:1.12.1                 | 9081       | shared-workspace |
+| spark-master      | bde2020/spark-master | 8080 | - |
+| spark-worker      | bde2020/spark-worker | 8081 | - |
+| hadoop-namenode   | bde2020/hadoop-namenode | 50070 | - |
+| hadoop-datanode   | bde2020/hadoop-datanode | 50075 | - |
 | elasticsearch     | elasticsearch/elasticsearch:7.6.2  | 9200,9300       | - |
 | kibana            | kibana/kibana:7.10.1               | 5601            | - |
-| zeppelin          | apache/zeppelin:0.9.0              | 8080,8443,4040  | shared-workspace |
+| zeppelin          | apache/zeppelin:0.9.0              | 9080  | shared-workspace |
 
 ## Installation
 
@@ -75,9 +77,11 @@ docker-compose up -d
 
 | Tool              | URL                         | Credentials    |
 | ----------------- | --------------------------- | -------------- |
-| zeppelin          | http://localhost:8080/      | - |
-| nifi              | http://localhost:8081/nifi/ | - |
-| spark             | bitnami/spark:3.0.1                | 7077           | shared-workspace |
-| kibana            | kibana/kibana:7.10.1               | 5601           | - |
+| zeppelin          | http://localhost:9080/      | - |
+| nifi              | http://localhost:9081/nifi/ | - |
+| spark-master      | http://localhost:8080/ | - |
+| spark-worker      | http://localhost:8081/ | - |
+| hadoop-namenode   | http://localhost:50070/ | - |
+| hadoop-datanode   | http://localhost:50075/ | - |
 
 

@@ -4,7 +4,7 @@ services:
   zookeeper:
     image: zookeeper:3.6.2
     hostname: zookeeper
-    container_name: data-lake-zookeeper
+    container_name: big-data-lab-zookeeper
     expose:
       - 2181
     volumes:
@@ -17,7 +17,7 @@ services:
   kafka:
     image: wurstmeister/kafka:2.13-2.6.0
     hostname: kafka
-    container_name: data-lake-kafka
+    container_name: big-data-lab-kafka
     command: [start-kafka.sh]
     ports:
       - "9092:9092"
@@ -38,13 +38,13 @@ services:
   nifi:
     image: apache/nifi:1.12.1
     hostname: nifi
-    container_name: data-lake-nifi
+    container_name: big-data-lab-nifi
     environment:
-      NIFI_WEB_HTTP_PORT: 8081
-      NIFI_WEB_HTTPS_PORT: 8444
+      NIFI_WEB_HTTP_PORT: 9081
+      NIFI_WEB_HTTPS_PORT: 9443
     ports:
-      - "8081:8081"
-      - "8444:8444"
+      - "9081:9081"
+      - "9443:9443"
     volumes:
       - ./ws/nifi/logs:/opt/nifi/nifi-current/logs
       - ./ws/shared:/opt/workspace
@@ -57,7 +57,7 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
     hostname: elasticsearch
-    container_name: data-lake-elasticsearch
+    container_name: big-data-lab-elasticsearch
     volumes:
       - ./ws/elasticsearch/logs:/usr/share/elasticsearch/logs/
     environment:
@@ -71,7 +71,7 @@ services:
   kibana:
     image: docker.elastic.co/kibana/kibana:7.10.1
     hostname: kibana
-    container_name: data-lake-kibana
+    container_name: big-data-lab-kibana
     ports:
       - "5601:5601"
     environment:
@@ -82,33 +82,59 @@ services:
       - elasticsearch
 
   hdfs-namenode:
-    image: cybermaggedon/hadoop:2.10.0
+    image: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
     hostname: hdfs-namenode
-    container_name: data-lake-hdfs-namenode
-    ports:
-      - "9000:9000"
-      - "8020:8020"
-      - "50070:50070"
+    container_name: big-data-lab-hdfs-namenode
     volumes:
-      - ./ws/shared:/opt/workspace
-      - ./ws/hadoop/logs:/usr/local/hadoop/logs/
-      - ./ws/hadoop/data:/data
+      - ./ws/hadoop/namenode:/hadoop/dfs/name
+    environment:
+      - CLUSTER_NAME=big-data-lab
+    ports:
+      - "50070:50070"
     networks:
       - big-data-lab-net
 
-  spark:
-    image: bitnami/spark:3.0.1
-    hostname: spark
-    container_name: data-lake-spark
-    ports:
-      - "7077:7077"
-    environment:
-      SPARK_MODE: master
+  hdfs-datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop2.7.4-java8
+    hostname: hdfs-datanode
+    container_name: big-data-lab-hdfs-datanode
     volumes:
-      - ./ws/shared:/opt/workspace
-      #- shared-workspace:/opt/workspace
+      - ./ws/hadoop/datanode:/hadoop/dfs/data
+    environment:
+      SERVICE_PRECONDITION: "hdfs-namenode:50070"
+      CORE_CONF_fs_defaultFS: "hdfs://hdfs-namenode:8020"
+    depends_on:
+      - hdfs-namenode
+    ports:
+      - "50075:50075"
     networks:
       - big-data-lab-net
+
+  spark-master:
+    image: bde2020/spark-master:2.4.0-hadoop2.7
+    container_name: big-data-lab-spark-master
+    ports:
+      - 8080:8080
+      - 7077:7077
+    environment:
+      CORE_CONF_fs_defaultFS: "hdfs://hdfs-namenode:8020"
+    networks:
+      - big-data-lab-net
+
+  spark-worker:
+    image: bde2020/spark-worker:2.4.0-hadoop2.7
+    container_name: big-data-lab-spark-worker
+    depends_on:
+      - spark-master
+    environment:
+      SPARK_MASTER: "spark://spark-master:7077"
+      CORE_CONF_fs_defaultFS: "hdfs://hdfs-namenode:8020"
+      HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://hive-metastore/metastore"
+    ports:
+      - 8081:8081
+    networks:
+      - big-data-lab-net
+
 
   zeppelin:
     build:
@@ -116,14 +142,13 @@ services:
       labels:
         - scalvetr/spark
     hostname: zeppelin
-    container_name: data-lake-zeppelin
+    container_name: big-data-lab-zeppelin
     ports:
-      - "8080:8080"
-      - "8443:8443"
-      - "4040:4040"
+      - "9080:8080"
     environment:
       ZEPPELIN_LOG_DIR: /zeppelin/logs
       ZEPPELIN_NOTEBOOK_DIR: /zeppelin/notebook
+      HADOOP_USER_NAME: root
     volumes:
       - ./ws/shared:/opt/workspace
       - ./ws/zeppelin/notebooks:/zeppelin/notebook
