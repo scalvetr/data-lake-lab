@@ -237,7 +237,7 @@ services:
       - ./ws/shared:/opt/workspace
       - ./ws/zeppelin/notebooks:/zeppelin/notebook
       - ./ws/zeppelin/logs:/zeppelin/logs
-      #- ./ws/zeppelin/conf/interpreter.json:/zeppelin/conf/interpreter.json
+      - ./ws/zeppelin/conf/interpreter.json:/zeppelin/conf/interpreter.json
       - ./ws/shared/jdbc/mysql-connector-java.jar:/opt/sqoop/lib/mysql-connector-java.jar
       - ./ws/shared/jdbc/postgresql.jar:/opt/sqoop/lib/postgresql.jar
       - ./ws/zeppelin/conf/log4j.properties:/zeppelin/conf/log4j.properties

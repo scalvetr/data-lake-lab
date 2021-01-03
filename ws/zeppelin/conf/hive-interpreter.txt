@@ -1,2 +1,4 @@
 jdbc:hive2://hive:10000/;
 org.apache.hive.jdbc.HiveDriver
+
+org.apache.hive:hive-jdbc:2.3.7
