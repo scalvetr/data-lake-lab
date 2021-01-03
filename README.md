@@ -18,59 +18,62 @@
 
 ## Installation
 
+### Reset
 ```shell
 docker-compose down
 
 docker container prune
 docker volume prune
 docker network prune
+docker image prune -a
 
-sudo rm -fR ws/
+sudo rm -fR ws/elasticsearch/logs/*
+sudo rm -fR ws/hoadoop/datanode/logs/*
+sudo rm -fR ws/hoadoop/datanode/data/*
+sudo rm -fR ws/hoadoop/namenode/logs/*
+sudo rm -fR ws/hoadoop/namenode/name/*
+sudo rm -fR ws/hive/logs/*
+sudo rm -fR ws/kafka/logs/*
+sudo rm -fR ws/kibana/logs/*
+sudo rm -fR ws/spark/master/logs/*
+sudo rm -fR ws/spark/worker/logs/*
+sudo rm -fR ws/zepelin/logs/*
+sudo rm -fR ws/zookeeper/logs/*
 ```
 
 ```shell
-mkdir -p ws/hadoop/logs/
-chmod 777 -fR ws/hadoop/logs/
-mkdir -p ws/hadoop/data/
-chmod 777 -fR ws/hadoop/data/
-mkdir -p ws/nifi/logs/
-chmod 777 -fR ws/nifi/logs/
-mkdir -p ws/zeppelin/logs/
-chmod 777 -fR ws/zeppelin/logs/
-mkdir -p ws/elasticsearch/logs/
-chmod 777 -fR ws/elasticsearch/logs/
-mkdir -p ws/kafka/logs/
-chmod 777 -fR ws/kafka/logs/
-mkdir -p ws/zookeeper/logs/
-chmod 777 -fR ws/zookeeper/logs/
-mkdir -p ws/shared
-chmod 777 -fR ws/shared
+mkdir -p ws
+chmod a+rw -fR ws/
 
+docker-compose build
+docker-compose up -d
 
 mkdir -p ws/zeppelin/notebooks/
 chmod 777 -fR ws/zeppelin/notebooks/
 cd ws/zeppelin/notebooks/
 git init
 
-cd ../../..
-mkdir -p ws/zeppelin/conf/
-cat > ws/zeppelin/conf/log4j.properties <<- EOF
-log4j.rootLogger = INFO, FILE
-log4j.appender.stdout = org.apache.log4j.ConsoleAppender
-log4j.appender.stdout.layout = org.apache.log4j.PatternLayout
-log4j.appender.stdout.layout.ConversionPattern=%5p [%d] ({%t} %F[%M]:%L) - %m%n
-log4j.appender.FILE.DatePattern=.yyyy-MM-dd
-log4j.appender.FILE.DEBUG = INFO
-log4j.appender.FILE = org.apache.log4j.DailyRollingFileAppender
-log4j.appender.FILE.File = /zeppelin/logs/local.log
-log4j.appender.FILE.layout = org.apache.log4j.PatternLayout
-log4j.appender.FILE.layout.ConversionPattern=%5p [%d] ({%t} %F[%M]:%L) - %m%n
-log4j.logger.org.apache.zeppelin.python=DEBUG
-log4j.logger.org.apache.zeppelin.spark=DEBUG
-EOF
-chmod 777 -fR ws/zeppelin/conf/
+```
+## Debug Nifi
+```shell
+docker exec big-data-lab-nifi tail -f /opt/nifi/nifi-current/logs/nifi-app.log
+```
+## Debug Kafka
+```shell
+# enter kafka server docker container
+docker exec -it big-data-lab-kafka /bin/bash
+# list topics
+kafka-topics.sh --bootstrap-server kafka:9092 --list
+# describe topic santander-in-traffic-metrics
+kafka-topics.sh --bootstrap-server kafka:9092 --topic santander-in-traffic-metrics --describe
+# count messages in topic santander-in-traffic-metrics
+kafka-run-class.sh kafka.tools.GetOffsetShell \
+  --broker-list kafka:9092 \
+  --topic santander-in-traffic-metrics --time -1 --offsets 1 \
+  | awk -F  ":" '{sum += $3} END {print sum}'
+# read messages in topic santander-in-traffic-metrics
+kafka-console-consumer.sh --bootstrap-server kafka:9092 --topic santander-in-traffic-metrics --group cmd-line --from-beginning
 
-docker-compose up -d
 ```
 
 ## URLs

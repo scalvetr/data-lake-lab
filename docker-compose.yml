@@ -23,13 +23,14 @@ services:
     ports:
       - "9092:9092"
     environment:
-      KAFKA_ADVERTISED_LISTENERS: INSIDE://:9092
-      KAFKA_LISTENERS: INSIDE://:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_ADVERTISED_LISTENERS: "INSIDE://kafka:29092,OUTSIDE://172.27.1.6:9092"
+      KAFKA_LISTENERS: INSIDE://:29092,OUTSIDE://:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: OUTSIDE
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     volumes:
-      - ./ws/kafka/logs:/kafka/logs
+      - ./ws/shared:/opt/workspace
+      - ./ws/kafka/logs:/opt/kafka/logs
       #- kafka-logs:/kafka/logs
     networks:
       big-data-lab-net:
@@ -48,8 +49,9 @@ services:
       - "9081:9081"
       - "9443:9443"
     volumes:
-      - ./ws/nifi/logs:/opt/nifi/nifi-current/logs
       - ./ws/shared:/opt/workspace
+      - ./ws/nifi/logs:/opt/nifi/nifi-current/logs
+      - ./ws/nifi/state:/data/nifi/state
       #- nifi-logs:/opt/nifi/nifi-current/logs
       #- shared-workspace:/opt/workspace
     depends_on:
@@ -64,7 +66,9 @@ services:
     hostname: hdfs-namenode
     container_name: big-data-lab-hdfs-namenode
     volumes:
-      - ./ws/hadoop/namenode:/hadoop/dfs/name
+      - ./ws/shared:/opt/workspace
+      - ./ws/hadoop/namenode/name:/hadoop/dfs/name
+      - ./ws/hadoop/namenode/logs:/opt/hadoop-2.7.4/logs
     environment:
       - CLUSTER_NAME=big-data-lab
     ports:
@@ -79,7 +83,9 @@ services:
     hostname: hdfs-datanode
     container_name: big-data-lab-hdfs-datanode
     volumes:
-      - ./ws/hadoop/datanode:/hadoop/dfs/data
+      - ./ws/shared:/opt/workspace
+      - ./ws/hadoop/datanode/data:/hadoop/dfs/data
+      - ./ws/hadoop/datanode/logs:/opt/hadoop-2.7.4/logs
     environment:
       SERVICE_PRECONDITION: "hdfs-namenode:50070"
       CORE_CONF_fs_defaultFS: "hdfs://hdfs-namenode:8020"
@@ -96,6 +102,10 @@ services:
     image: bde2020/spark-master:2.4.0-hadoop2.7
     hostname: spark-master
     container_name: big-data-lab-spark-master
+    volumes:
+      - ./ws/shared:/opt/workspace
+      - ./ws/spark/master/conf:/spark/conf
+      - ./ws/spark/master/logs:/spark/logs
     ports:
       - 8080:8080
       - 7077:7077
@@ -109,6 +119,10 @@ services:
     image: bde2020/spark-worker:2.4.0-hadoop2.7
     hostname: spark-worker
     container_name: big-data-lab-spark-worker
+    volumes:
+      - ./ws/shared:/opt/workspace
+      - ./ws/spark/worker/conf:/spark/conf
+      - ./ws/spark/worker/logs:/spark/logs
     depends_on:
       - spark-master
     environment:
@@ -124,6 +138,9 @@ services:
     image: bde2020/hive:2.3.2
     hostname: hive-server
     container_name: big-data-lab-hive-server
+    volumes:
+      - ./ws/shared:/opt/workspace
+      - ./ws/hive/conf:/opt/hive/conf
     environment:
       CORE_CONF_fs_defaultFS: "hdfs://hdfs-namenode:8020"
       CORE_CONF_hadoop_http_staticuser_user: "root"
@@ -143,7 +160,8 @@ services:
     hostname: elasticsearch
     container_name: big-data-lab-elasticsearch
     volumes:
-      - ./ws/elasticsearch/logs:/usr/share/elasticsearch/logs/
+      - ./ws/shared:/opt/workspace
+      - ./ws/elasticsearch/logs:/usr/share/elasticsearch/logs
     environment:
       discovery.type: single-node
     ports:
@@ -157,6 +175,9 @@ services:
     image: docker.elastic.co/kibana/kibana:7.10.1
     hostname: kibana
     container_name: big-data-lab-kibana
+    volumes:
+      - ./ws/shared:/opt/workspace
+      - ./ws/kibana/logs:/opt/kibana/logs
     ports:
       - "5601:5601"
     environment:
@@ -176,7 +197,12 @@ services:
     environment:
       MYSQL_USER: "big-data-user"
       MYSQL_PASSWORD: "big-data-user"
-      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_ROOT_PASSWORD: "hortonworks1"
+      MYSQL_DATABASE: "ranger"
+    volumes:
+      - ./ws/mysql/data:/var/lib/mysql
+      - ./ws/mysql/logs:/var/log/mysql
+      - ./ws/mysql/conf:/etc/mysql/conf.d
     networks:
       big-data-lab-net:
         ipv4_address: 172.27.1.30
@@ -194,12 +220,14 @@ services:
       ZEPPELIN_LOG_DIR: /zeppelin/logs
       ZEPPELIN_NOTEBOOK_DIR: /zeppelin/notebook
       HADOOP_USER_NAME: root
-      SPARK_SUBMIT_OPTIONS: "--files /opt/workspace/jdbs/mysql-connector-java.jar,/opt/workspace/jdbs/postgress.jar"
+      SPARK_SUBMIT_OPTIONS: "--jars /opt/workspace/jdbc/mysql-connector-java.jar,/opt/workspace/jdbc/postgresql.jar"
     volumes:
       - ./ws/shared:/opt/workspace
       - ./ws/zeppelin/notebooks:/zeppelin/notebook
       - ./ws/zeppelin/logs:/zeppelin/logs
       #- ./ws/zeppelin/conf/interpreter.json:/zeppelin/conf/interpreter.json:rw
+      - ./ws/shared/jdbc/mysql-connector-java.jar:/opt/sqoop/lib/mysql-connector-java.jar
+      - ./ws/shared/jdbc/postgresql.jar:/opt/sqoop/lib/postgresql.jar
       - ./ws/zeppelin/conf/log4j.properties:/zeppelin/conf/log4j.properties
       - ./ws/zeppelin/conf/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
       - ./ws/zeppelin/conf/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml

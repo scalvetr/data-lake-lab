@@ -1,0 +1,23 @@
+{
+  "namespace": "nifi",
+  "name": "enriched_sensor_event",
+  "type": "record",
+  "fields": [
+    {"name": "load", "type":"int" },
+    { "name": "occupation", "type":"int" },
+    { "name": "intensity", "type":"int" },
+    { "name": "eventTime", "type":"string" },
+    { "name": "sensor", "type":"string" },
+    {
+      "name": "location",
+      "type": {
+        "type" : "record",
+        "name" : "location_record",
+        "fields" : [
+          { "name": "lon", "type":"string" },
+          { "name": "lat", "type":"string" }
+        ]
+      }
+    }
+  ]
+}

@@ -92,7 +92,9 @@ RUN echo "$LOG_TAG Install scala" && \
 #RUN wget -O spark.tgz https://archive.apache.org/dist/spark/spark-3.0.1/spark-3.0.1-bin-hadoop2.7.tgz
 RUN wget -O spark.tgz https://archive.apache.org/dist/spark/spark-2.4.7/spark-2.4.7-bin-hadoop2.7.tgz
 RUN wget -O hadoop.tgz https://archive.apache.org/dist/hadoop/common/hadoop-2.7.4/hadoop-2.7.4.tar.gz
-
+#RUN wget -O sqoop.tgz https://archive.apache.org/dist/sqoop/1.99.7/sqoop-1.99.7-bin-hadoop200.tar.gz
+RUN wget -O sqoop.tgz https://archive.apache.org/dist/sqoop/1.4.7/sqoop-1.4.7.bin__hadoop-2.6.0.tar.gz
+RUN wget -O hbase.tgz https://archive.apache.org/dist/hbase/2.3.3/hbase-2.3.3-bin.tar.gz
 
 RUN tar -xvzf spark.tgz
 RUN rm -fR spark.tgz
@@ -102,12 +104,26 @@ RUN tar -xvzf hadoop.tgz
 RUN rm -fR hadoop.tgz
 RUN mv hadoop-* /opt/hadoop
 
+RUN tar -xvzf sqoop.tgz
+RUN rm -fR sqoop.tgz
+RUN mv sqoop-* /opt/sqoop
+
+RUN tar -xvzf hbase.tgz
+RUN rm -fR hbase.tgz
+RUN mv hbase-* /opt/hbase
+
 ENV HADOOP_HOME=/opt/hadoop
 ENV PATH="${HADOOP_HOME}/bin:${HADOOP_HOME}/sbin:${PATH}"
 
 ENV SPARK_HOME=/opt/spark
 ENV PATH="${SPARK_HOME}/bin:${SPARK_HOME}/sbin:${PATH}"
 ENV PYSPARK_PYTHON=/usr/bin/python3
+
+ENV SQOOP_HOME=/opt/sqoop
+ENV PATH="${SQOOP_HOME}/bin:${PATH}"
+
+ENV HBASE_HOME=/opt/hbase
+ENV PATH="${HBASE_HOME}/bin:${PATH}"
 
 
 USER 1000
