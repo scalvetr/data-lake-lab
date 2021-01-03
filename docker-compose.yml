@@ -45,13 +45,14 @@ services:
     environment:
       NIFI_WEB_HTTP_PORT: 9081
       NIFI_WEB_HTTPS_PORT: 9443
+      HADOOP_USER_NAME: root
     ports:
       - "9081:9081"
       - "9443:9443"
     volumes:
       - ./ws/shared:/opt/workspace
       - ./ws/nifi/logs:/opt/nifi/nifi-current/logs
-      - ./ws/nifi/state:/data/nifi/state
+      - ./ws/nifi/state:/opt/nifi/nifi-current/state/
       #- nifi-logs:/opt/nifi/nifi-current/logs
       #- shared-workspace:/opt/workspace
     depends_on:
@@ -237,13 +238,13 @@ services:
       - ./ws/shared:/opt/workspace
       - ./ws/zeppelin/notebooks:/zeppelin/notebook
       - ./ws/zeppelin/logs:/zeppelin/logs
-      - ./ws/zeppelin/conf/interpreter.json:/zeppelin/conf/interpreter.json
       - ./ws/shared/jdbc/mysql-connector-java.jar:/opt/sqoop/lib/mysql-connector-java.jar
       - ./ws/shared/jdbc/postgresql.jar:/opt/sqoop/lib/postgresql.jar
+      - ./ws/shared/conf/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
+      - ./ws/shared/conf/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml
+      - ./ws/shared/conf/hive-site.xml:/opt/hadoop/etc/hadoop/hive-site.xml
+      - ./ws/zeppelin/conf/interpreter.json:/zeppelin/conf/interpreter-override.json
       - ./ws/zeppelin/conf/log4j.properties:/zeppelin/conf/log4j.properties
-      - ./ws/zeppelin/conf/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
-      - ./ws/zeppelin/conf/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml
-      - ./ws/zeppelin/conf/hive-site.xml:/opt/hadoop/etc/hadoop/hive-site.xml
       #- shared-workspace:/opt/workspace
       #- zeppelin-notebooks:/zeppelin/notebook
       #- zeppelin-logs:/zeppelin/logs

@@ -87,12 +87,32 @@ curl http://localhost:9200/sensors-santander-traffic/_search | jq
 
 ```
 
-## Debug 
-```shell
-# enter kafka server docker container
-docker exec -it big-data-lab-hive /bin/bash
-schematool -initSchema -dbType derby
+## Hive
 
+```shell
+# enter hive server docker container
+docker exec -it big-data-lab-hive /bin/bash
+cd /opt/hive
+./bin/hive -e "CREATE DATABASE SANTANDER_DATA"
+
+./bin/hive -e "DROP TABLE SANTANDER_DATA.TRAFFIC_SENSOR"
+
+./bin/hive -e "CREATE TABLE IF NOT EXISTS SANTANDER_DATA.SENSORS_TRAFFIC( \
+load int, occupation int, intensity int, eventTime String, sensor String, \
+lon String, lat String) \
+COMMENT 'Traffic Sensors' \
+TRANSACTIONAL = 'true' \
+CLUSTERED BY (sensor) INTO 10 BUCKETS \
+STORED AS ORC; "
+
+#PARTITIONED BY (job string) \
+#
+#ROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.orc.OrcSerde'; "
+#STORED AS ORC LOCATION   'hdfs://localhost:9000/user/papesdiop/guys' TBLPROPERTIES ( 'transactional'='true')"
+
+
+
+./bin/hive -e "SELECT * SANTANDER_DATA.TRAFFIC_SENSOR"
 ```
 
 ## URLs

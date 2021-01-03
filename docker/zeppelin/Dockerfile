@@ -126,10 +126,13 @@ ENV HBASE_HOME=/opt/hbase
 ENV PATH="${HBASE_HOME}/bin:${PATH}"
 
 
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 USER 1000
 
 EXPOSE 8080
 
-ENTRYPOINT [ "/usr/bin/tini", "--" ]
+ENTRYPOINT ["/entrypoint.sh"]
 WORKDIR ${Z_HOME}
 CMD ["bin/zeppelin.sh"]
