@@ -76,6 +76,25 @@ kafka-console-consumer.sh --bootstrap-server kafka:9092 --topic santander-in-tra
 
 ```
 
+## Debug Elastiksearch
+```shell
+curl http://localhost:9200/ | jq
+curl http://localhost:9200/_cat/indices
+curl http://localhost:9200/sensors-santander-traffic/?pretty | jq
+curl http://localhost:9200/sensors-santander-traffic/_count | jq
+curl http://localhost:9200/sensors-santander-traffic/_search | jq
+
+
+```
+
+## Debug 
+```shell
+# enter kafka server docker container
+docker exec -it big-data-lab-hive /bin/bash
+schematool -initSchema -dbType derby
+
+```
+
 ## URLs
 
 | Tool              | URL                         | Credentials    |

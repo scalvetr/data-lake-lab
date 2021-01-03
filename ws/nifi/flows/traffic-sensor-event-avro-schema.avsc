@@ -10,14 +10,14 @@
     { "name": "sensor", "type":"string" },
     {
       "name": "location",
-      "type": {
+      "type": [ "null", {
         "type" : "record",
         "name" : "location_record",
         "fields" : [
           { "name": "lon", "type":"string" },
           { "name": "lat", "type":"string" }
         ]
-      }
+      }]
     }
   ]
 }

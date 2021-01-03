@@ -104,7 +104,7 @@ services:
     container_name: big-data-lab-spark-master
     volumes:
       - ./ws/shared:/opt/workspace
-      - ./ws/spark/master/conf:/spark/conf
+      #- ./ws/spark/master/conf:/spark/conf
       - ./ws/spark/master/logs:/spark/logs
     ports:
       - 8080:8080
@@ -121,7 +121,7 @@ services:
     container_name: big-data-lab-spark-worker
     volumes:
       - ./ws/shared:/opt/workspace
-      - ./ws/spark/worker/conf:/spark/conf
+      #- ./ws/spark/worker/conf:/spark/conf
       - ./ws/spark/worker/logs:/spark/logs
     depends_on:
       - spark-master
@@ -134,23 +134,35 @@ services:
       big-data-lab-net:
         ipv4_address: 172.27.1.14
 
-  hive-server:
-    image: bde2020/hive:2.3.2
-    hostname: hive-server
-    container_name: big-data-lab-hive-server
+  hive:
+    build:
+      context: docker/hive/
+      labels:
+        - scalvetr/hive
+    hostname: hive
+    container_name: big-data-lab-hive
     volumes:
       - ./ws/shared:/opt/workspace
-      - ./ws/hive/conf:/opt/hive/conf
+      - ./ws/hive/data:/opt/derby-data
     environment:
       CORE_CONF_fs_defaultFS: "hdfs://hdfs-namenode:8020"
       CORE_CONF_hadoop_http_staticuser_user: "root"
       HDFS_CONF_dfs_webhdfs_enabled: "true"
       HDFS_CONF_dfs_permissions_enabled: "false"
-      HIVE_SITE_CONF_hive_metastore_warehouse_dir: "/warehouse/tablespace/managed"
+      HIVE_PORT: "10000"
+      HIVE_SITE_CONF_hive_metastore_warehouse_dir: "hdfs://hdfs-namenode:8020/warehouse/tablespace/managed"
+      HIVE_SITE_CONF_javax_jdo_option_ConnectionURL: "jdbc:derby://localhost:1527/metastore_db;create=true"
+      HIVE_SITE_CONF_javax_jdo_option_ConnectionDriverName: "org.apache.derby.jdbc.ClientDriver"
+      HIVE_SITE_CONF_datanucleus_autoCreateSchema: "false"
+      HIVE_SITE_CONF_hive_metastore_uris: "thrift://localhost:9083"
+      HDFS_CONF_dfs_namenode_datanode_registration_ip___hostname___check: "false"
     depends_on:
       - hdfs-datanode
     ports:
+      - "9083:9083"
       - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
     networks:
       big-data-lab-net:
         ipv4_address: 172.27.1.15
@@ -211,7 +223,7 @@ services:
     build:
       context: docker/zeppelin/
       labels:
-        - scalvetr/spark
+        - scalvetr/zeppelin
     hostname: zeppelin
     container_name: big-data-lab-zeppelin
     ports:
@@ -220,12 +232,12 @@ services:
       ZEPPELIN_LOG_DIR: /zeppelin/logs
       ZEPPELIN_NOTEBOOK_DIR: /zeppelin/notebook
       HADOOP_USER_NAME: root
-      SPARK_SUBMIT_OPTIONS: "--jars /opt/workspace/jdbc/mysql-connector-java.jar,/opt/workspace/jdbc/postgresql.jar"
+      SPARK_SUBMIT_OPTIONS: "--jars /opt/workspace/jdbc/mysql-connector-java.jar,/opt/workspace/jdbc/postgresql.jar,/opt/workspace/jdbc/hive-jdbc.jar"
     volumes:
       - ./ws/shared:/opt/workspace
       - ./ws/zeppelin/notebooks:/zeppelin/notebook
       - ./ws/zeppelin/logs:/zeppelin/logs
-      #- ./ws/zeppelin/conf/interpreter.json:/zeppelin/conf/interpreter.json:rw
+      #- ./ws/zeppelin/conf/interpreter.json:/zeppelin/conf/interpreter.json
       - ./ws/shared/jdbc/mysql-connector-java.jar:/opt/sqoop/lib/mysql-connector-java.jar
       - ./ws/shared/jdbc/postgresql.jar:/opt/sqoop/lib/postgresql.jar
       - ./ws/zeppelin/conf/log4j.properties:/zeppelin/conf/log4j.properties
