@@ -1,12 +1,7 @@
 FROM ubuntu:20.04
 
-ENV Z_VERSION="0.9.0-preview2"
-
-ENV LOG_TAG="[ZEPPELIN_${Z_VERSION}]:" \
-    Z_HOME="/zeppelin" \
-    LANG=en_US.UTF-8 \
-    LC_ALL=en_US.UTF-8 \
-    ZEPPELIN_ADDR="0.0.0.0"
+ENV LANG="en_US.UTF-8" \
+    LC_ALL="en_US.UTF-8"
 
 RUN echo "$LOG_TAG update and install basic packages" && \
     apt-get -y update && \
@@ -15,10 +10,11 @@ RUN echo "$LOG_TAG update and install basic packages" && \
     apt-get install -y software-properties-common && \
     apt -y autoclean && \
     apt -y dist-upgrade && \
-    apt-get install -y build-essential
+    apt-get install -y \
+    build-essential wget curl grep sed dpkg net-tools \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN echo "$LOG_TAG install tini related packages" && \
-    apt-get install -y wget curl grep sed dpkg && \
+RUN echo "$LOG_TAG install tini" && \
     TINI_VERSION=`curl https://github.com/krallin/tini/releases/latest | grep -o "/v.*\"" | sed 's:^..\(.*\).$:\1:'` && \
     curl -L "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini_${TINI_VERSION}.deb" > tini.deb && \
     dpkg -i tini.deb && \
@@ -26,43 +22,35 @@ RUN echo "$LOG_TAG install tini related packages" && \
 
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 RUN echo "$LOG_TAG Install java8" && \
-    apt-get -y update && \
-    apt-get install -y openjdk-8-jdk && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get -y update && apt-get install -y \
+    openjdk-8-jdk \
+    && rm -rf /var/lib/apt/lists/*
 
-# should install conda first before numpy, matploylib since pip and python will be installed by conda
-RUN echo "$LOG_TAG Install miniconda3 related packages" && \
-    apt-get -y update && \
-    apt-get install -y bzip2 ca-certificates \
-    libglib2.0-0 libxext6 libsm6 libxrender1 \
-    git mercurial subversion && \
-    echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh && \
-    wget --quiet https://repo.continuum.io/miniconda/Miniconda3-4.6.14-Linux-x86_64.sh -O ~/miniconda.sh && \
-    /bin/bash ~/miniconda.sh -b -p /opt/conda && \
-    rm ~/miniconda.sh
-
-ENV PATH /opt/conda/bin:$PATH
 
 RUN echo "$LOG_TAG Install python related packages" && \
-    apt-get -y update && \
-    apt-get install -y python3-dev python3-pip && \
-    apt-get install -y python3-tk python3-pycodestyle && \
-    apt-get install -y python3-numpy python3-pandas python3-scipy python3-pandas && \
-    apt-get install -y python3-protobuf python3-ipython python3-matplotlib python3-ipykernel && \
-    apt-get install -y python3-seaborn python3-patsy python3-jupyter-client && \
-    apt-get install -y cython3
-#    pip3 install -q mizani==0.6.0 plotnine==0.6.0 apache-beam==2.16.0 fastparquet==0.3.2 grpcio==1.26.0 bkzep==0.6.1 hvplot==0.5.2 pandasql3==0.7.3 bokeh==1.4.0 panel==0.7.0 holoviews==1.12.7 intake==0.5.4 intake-parquet==0.2.3 altair==3.3.0
+    apt-get -y update && apt-get install -y \
+    python3-dev python3-pip python3-tk python3-pycodestyle \
+    python3-numpy python3-pandas python3-scipy python3-pandas \
+    python3-protobuf python3-ipython python3-matplotlib python3-ipykernel cython3 \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN echo "$LOG_TAG Install other python related packages" && \
-    pip3 install -q fastparquet grpcio bkzep hvplot pandasql3 bokeh panel holoviews intake intake-parquet altair cython
-RUN echo "$LOG_TAG Install other python plotnine" && \
-    pip3 install -q mizani==0.6.0 plotnine==0.6.0
-#RUN echo "$LOG_TAG Install other python apache-beam" && \
-#    pip3 install -q apache-beam==2.21.0
+    pip3 install --no-cache-dir -q \
+    fastparquet grpcio bkzep hvplot pandasql3 bokeh panel holoviews \
+    intake intake-parquet altair cython \
+    mizani==0.6.0 plotnine==0.6.0
 
+RUN echo "$LOG_TAG Install scala" && \
+    apt-get -y update && apt-get install -y \
+    scala \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN echo "$LOG_TAG Cleanup" && \
-    apt-get autoclean && \
-    apt-get clean
+ENV Z_VERSION="0.9.0"
+ENV LOG_TAG="[ZEPPELIN_${Z_VERSION}]:" \
+    Z_HOME="/zeppelin" \
+    LANG="en_US.UTF-8" \
+    LC_ALL="en_US.UTF-8" \
+    ZEPPELIN_ADDR="0.0.0.0"
 
 RUN echo "$LOG_TAG Download Zeppelin binary" && \
     wget --quiet -O /tmp/zeppelin-${Z_VERSION}-bin-all.tgz http://archive.apache.org/dist/zeppelin/zeppelin-${Z_VERSION}/zeppelin-${Z_VERSION}-bin-all.tgz && \
@@ -83,48 +71,38 @@ COPY log4j.properties ${Z_HOME}/conf/
 COPY log4j_docker.properties ${Z_HOME}/conf/
 
 
-RUN echo "$LOG_TAG Install scala" && \
-    apt-get -y update && \
-    apt-get install -y scala && \
-    rm -rf /var/lib/apt/lists/*
-
-
-#RUN wget -O spark.tgz https://archive.apache.org/dist/spark/spark-3.0.1/spark-3.0.1-bin-hadoop2.7.tgz
-RUN wget -O spark.tgz https://archive.apache.org/dist/spark/spark-2.4.7/spark-2.4.7-bin-hadoop2.7.tgz
-RUN wget -O hadoop.tgz https://archive.apache.org/dist/hadoop/common/hadoop-2.7.4/hadoop-2.7.4.tar.gz
-#RUN wget -O sqoop.tgz https://archive.apache.org/dist/sqoop/1.99.7/sqoop-1.99.7-bin-hadoop200.tar.gz
-RUN wget -O sqoop.tgz https://archive.apache.org/dist/sqoop/1.4.7/sqoop-1.4.7.bin__hadoop-2.6.0.tar.gz
-RUN wget -O hbase.tgz https://archive.apache.org/dist/hbase/2.3.3/hbase-2.3.3-bin.tar.gz
-
-RUN tar -xvzf spark.tgz
-RUN rm -fR spark.tgz
-RUN mv spark-* /opt/spark
-
-RUN tar -xvzf hadoop.tgz
-RUN rm -fR hadoop.tgz
-RUN mv hadoop-* /opt/hadoop
-
-RUN tar -xvzf sqoop.tgz
-RUN rm -fR sqoop.tgz
-RUN mv sqoop-* /opt/sqoop
-
-RUN tar -xvzf hbase.tgz
-RUN rm -fR hbase.tgz
-RUN mv hbase-* /opt/hbase
-
-ENV HADOOP_HOME=/opt/hadoop
-ENV PATH="${HADOOP_HOME}/bin:${HADOOP_HOME}/sbin:${PATH}"
+RUN wget -O spark.tgz https://archive.apache.org/dist/spark/spark-2.4.7/spark-2.4.7-bin-hadoop2.7.tgz && \
+    tar -xvzf spark.tgz && \
+    mv spark-* /opt/spark && \
+    rm -fR spark.tgz
 
 ENV SPARK_HOME=/opt/spark
 ENV PATH="${SPARK_HOME}/bin:${SPARK_HOME}/sbin:${PATH}"
 ENV PYSPARK_PYTHON=/usr/bin/python3
 
+RUN wget -O hadoop.tgz https://archive.apache.org/dist/hadoop/common/hadoop-2.7.4/hadoop-2.7.4.tar.gz && \
+    tar -xvzf hadoop.tgz && \
+    rm -fR hadoop.tgz && \
+    mv hadoop-* /opt/hadoop
+
+ENV HADOOP_HOME=/opt/hadoop
+ENV PATH="${HADOOP_HOME}/bin:${HADOOP_HOME}/sbin:${PATH}"
+
+RUN wget -O sqoop.tgz https://archive.apache.org/dist/sqoop/1.4.7/sqoop-1.4.7.bin__hadoop-2.6.0.tar.gz && \
+    tar -xvzf sqoop.tgz && \
+    rm -fR sqoop.tgz && \
+    mv sqoop-* /opt/sqoop
+
 ENV SQOOP_HOME=/opt/sqoop
 ENV PATH="${SQOOP_HOME}/bin:${PATH}"
 
+RUN wget -O hbase.tgz https://archive.apache.org/dist/hbase/2.3.3/hbase-2.3.3-bin.tar.gz && \
+    tar -xvzf hbase.tgz && \
+    rm -fR hbase.tgz && \
+    mv hbase-* /opt/hbase
+
 ENV HBASE_HOME=/opt/hbase
 ENV PATH="${HBASE_HOME}/bin:${PATH}"
-
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
