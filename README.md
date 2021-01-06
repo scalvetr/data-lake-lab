@@ -95,24 +95,31 @@ docker exec -it big-data-lab-hive /bin/bash
 cd /opt/hive
 ./bin/hive -e "CREATE DATABASE SANTANDER_DATA"
 
-./bin/hive -e "DROP TABLE SANTANDER_DATA.TRAFFIC_SENSOR"
 
-./bin/hive -e "CREATE TABLE IF NOT EXISTS SANTANDER_DATA.SENSORS_TRAFFIC( \
-load int, occupation int, intensity int, eventTime String, sensor String, \
+./bin/hive -e "DROP TABLE sensors_traffic"
+# for json data
+./bin/hive -e "CREATE TABLE IF NOT EXISTS CREATE EXTERNAL TABLE sensors_traffic \
+(event_id varchar(30), load int, occupation int, intensity int, event_ts varchar(30), sensor varchar(30), location struct<lon:varchar(30), lat:varchar(30)>) \
+ROW FORMAT SERDE 'org.apache.hive.hcatalog.data.JsonSerDe' \
+LOCATION 'hdfs://hdfs-namenode:8020/data/santander/sensor_traffic_raw';"
+
+
+./bin/hive -e "CREATE TABLE IF NOT EXISTS sensors_traffic_stream( \
+event_id string, 
+load int,
+occupation int,
+intensity int,
+event_ts String,
+sensor String, \
 lon String, lat String) \
 COMMENT 'Traffic Sensors' \
-TRANSACTIONAL = 'true' \
-CLUSTERED BY (sensor) INTO 10 BUCKETS \
-STORED AS ORC; "
-
-#PARTITIONED BY (job string) \
-#
-#ROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.orc.OrcSerde'; "
-#STORED AS ORC LOCATION   'hdfs://localhost:9000/user/papesdiop/guys' TBLPROPERTIES ( 'transactional'='true')"
+PARTITIONED BY (`loaded_ts` string) \
+CLUSTERED BY (event_id) INTO 16 BUCKETS \
+STORED AS ORC \
+TBLPROPERTIES('transactional'='true');"
 
 
-
-./bin/hive -e "SELECT * SANTANDER_DATA.TRAFFIC_SENSOR"
+./bin/hive -e "SELECT * sensors_traffic"
 ```
 
 ## URLs
