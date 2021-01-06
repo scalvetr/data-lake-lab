@@ -8,9 +8,7 @@ services:
     expose:
       - 2181
     volumes:
-      #- zookeeper-logs:/logs
       - ./ws/zookeeper/logs:/logs
-      #- zookeeper-data:/data
     networks:
       big-data-lab-net:
         ipv4_address: 172.27.1.5
@@ -31,7 +29,6 @@ services:
     volumes:
       - ./ws/shared:/opt/workspace
       - ./ws/kafka/logs:/opt/kafka/logs
-      #- kafka-logs:/kafka/logs
     networks:
       big-data-lab-net:
         ipv4_address: 172.27.1.6
@@ -53,14 +50,11 @@ services:
       - ./ws/shared:/opt/workspace
       - ./ws/nifi/logs:/opt/nifi/nifi-current/logs
       - ./ws/nifi/state:/opt/nifi/nifi-current/state/
-      #- nifi-logs:/opt/nifi/nifi-current/logs
-      #- shared-workspace:/opt/workspace
     depends_on:
       - zookeeper
     networks:
       big-data-lab-net:
         ipv4_address: 172.27.1.10
-
 
   hdfs-namenode:
     image: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
@@ -77,7 +71,6 @@ services:
     networks:
       big-data-lab-net:
         ipv4_address: 172.27.1.11
-
 
   hdfs-datanode:
     image: bde2020/hadoop-datanode:2.0.0-hadoop2.7.4-java8
@@ -97,7 +90,6 @@ services:
     networks:
       big-data-lab-net:
         ipv4_address: 172.27.1.12
-
 
   spark-master:
     image: bde2020/spark-master:2.4.0-hadoop2.7
@@ -232,11 +224,13 @@ services:
     container_name: big-data-lab-zeppelin
     ports:
       - "9080:8080"
+      - "4040:4040"
     environment:
       ZEPPELIN_LOG_DIR: /zeppelin/logs
       ZEPPELIN_NOTEBOOK_DIR: /zeppelin/notebook
       HADOOP_USER_NAME: root
-      SPARK_SUBMIT_OPTIONS: "--jars /opt/workspace/jdbc/mysql-connector-java.jar,/opt/workspace/jdbc/postgresql.jar,/opt/workspace/jdbc/hive-jdbc.jar"
+      SPARK_SUBMIT_OPTIONS: "--jars /opt/workspace/jdbc/mysql-connector-java.jar,\
+      /opt/workspace/jdbc/postgresql.jar,/opt/workspace/jdbc/hive-jdbc.jar"
     volumes:
       - ./ws/shared:/opt/workspace
       - ./ws/zeppelin/notebooks:/zeppelin/notebook
