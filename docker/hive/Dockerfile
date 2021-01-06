@@ -66,7 +66,18 @@ RUN chmod +x /usr/local/bin/startup.sh
 COPY entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
+COPY wait-fot-it.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/wait-fot-it.sh
+
 RUN mkdir /opt/derby-data
+
+#RUN useradd -d ${HIVE_HOME} -m hive
+
+#RUN chown -fR hive ${DERBY_HOME}
+#RUN chown -fR hive ${HIVE_HOME}
+#RUN chown -fR hive ${HADOOP_HOME}
+#RUN chown -fR hive /opt/derby-data
+#USER hive
 
 # Derby
 EXPOSE 1527
