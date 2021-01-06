@@ -29,10 +29,10 @@ docker network prune
 docker image prune -a
 
 sudo rm -fR ws/elasticsearch/logs/*
-sudo rm -fR ws/hoadoop/datanode/logs/*
-sudo rm -fR ws/hoadoop/datanode/data/*
-sudo rm -fR ws/hoadoop/namenode/logs/*
-sudo rm -fR ws/hoadoop/namenode/name/*
+sudo rm -fR ws/hadoop/datanode/logs/*
+sudo rm -fR ws/hadoop/datanode/data/*
+sudo rm -fR ws/hadoop/namenode/logs/*
+sudo rm -fR ws/hadoop/namenode/name/*
 sudo rm -fR ws/hive/logs/*
 sudo rm -fR ws/kafka/logs/*
 sudo rm -fR ws/kibana/logs/*
