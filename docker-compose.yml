@@ -205,8 +205,8 @@ services:
     environment:
       MYSQL_USER: "big-data-user"
       MYSQL_PASSWORD: "big-data-user"
-      MYSQL_ROOT_PASSWORD: "hortonworks1"
-      MYSQL_DATABASE: "ranger"
+      MYSQL_ROOT_PASSWORD: "password"
+      MYSQL_DATABASE: "big-data-db"
     volumes:
       - ./ws/mysql/data:/var/lib/mysql
       - ./ws/mysql/logs:/var/log/mysql

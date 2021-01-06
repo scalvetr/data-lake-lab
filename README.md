@@ -127,6 +127,14 @@ TBLPROPERTIES('transactional'='true');"
 ./bin/hive -e "SELECT * sensors_traffic"
 ```
 
+## MySql Commands
+```shell
+
+# access mysql cli
+docker exec -it big-data-lab-mysql /usr/bin/mysql -u big-data-user -p
+use big-data-db
+show tables;
+```
 ## URLs
 
 | Tool              | URL                         | Credentials    |

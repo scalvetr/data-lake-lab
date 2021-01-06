@@ -37,7 +37,7 @@ RUN echo "$LOG_TAG Install python related packages" && \
 RUN echo "$LOG_TAG Install other python related packages 1" && \
     pip3 install --no-cache-dir -q \
     grpcio==1.19.0 bkzep==0.6.1 hvplot==0.5.2 pandasql==0.7.3 bokeh==1.3.4 panel==0.6.0 holoviews==1.12.3 \
-    altair==3.2.0 mizani==0.6.0 plotnine==0.6.0
+    altair==3.2.0 mizani==0.6.0 plotnine==0.6.0 textblob==0.15.3
 
 #RUN echo "$LOG_TAG Install other python related packages 2" && \
 #    pip3 install --no-cache-dir -q \
@@ -75,7 +75,7 @@ COPY log4j.properties ${Z_HOME}/conf/
 COPY log4j_docker.properties ${Z_HOME}/conf/
 
 
-RUN wget -O spark.tgz https://archive.apache.org/dist/spark/spark-2.4.7/spark-2.4.7-bin-hadoop2.7.tgz && \
+RUN wget -O spark.tgz https://archive.apache.org/dist/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz && \
     tar -xvzf spark.tgz && \
     mv spark-* /opt/spark && \
     rm -fR spark.tgz
