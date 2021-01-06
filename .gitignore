@@ -9,6 +9,7 @@
 /ws/hadoop/namenode/name/
 /ws/hadoop/namenode/logs/
 /ws/hive/logs/
+/ws/hive/data/
 /ws/kafka/logs/
 /ws/kibana/logs/
 /ws/mysql/data/
