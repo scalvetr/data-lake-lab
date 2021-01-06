@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:18.04
 
 ENV LANG="en_US.UTF-8" \
     LC_ALL="en_US.UTF-8"
@@ -10,8 +10,8 @@ RUN echo "$LOG_TAG update and install basic packages" && \
     apt-get install -y software-properties-common && \
     apt -y autoclean && \
     apt -y dist-upgrade && \
-    apt-get install -y \
-    build-essential wget curl grep sed dpkg net-tools \
+    DEBIAN_FRONTEND="noninteractive" apt-get install -y \
+    build-essential wget curl grep sed dpkg net-tools tzdata \
     && rm -rf /var/lib/apt/lists/*
 
 RUN echo "$LOG_TAG install tini" && \
@@ -34,11 +34,15 @@ RUN echo "$LOG_TAG Install python related packages" && \
     python3-protobuf python3-ipython python3-matplotlib python3-ipykernel cython3 \
     && rm -rf /var/lib/apt/lists/*
 
-RUN echo "$LOG_TAG Install other python related packages" && \
+RUN echo "$LOG_TAG Install other python related packages 1" && \
     pip3 install --no-cache-dir -q \
-    fastparquet grpcio bkzep hvplot pandasql3 bokeh panel holoviews \
-    intake intake-parquet altair cython \
-    mizani==0.6.0 plotnine==0.6.0
+    grpcio==1.19.0 bkzep==0.6.1 hvplot==0.5.2 pandasql==0.7.3 bokeh==1.3.4 panel==0.6.0 holoviews==1.12.3 \
+    altair==3.2.0 mizani==0.6.0 plotnine==0.6.0
+
+#RUN echo "$LOG_TAG Install other python related packages 2" && \
+#    pip3 install --no-cache-dir -q \
+#    intake==0.5.3 intake-parquet==0.2.2
+
 
 RUN echo "$LOG_TAG Install scala" && \
     apt-get -y update && apt-get install -y \
