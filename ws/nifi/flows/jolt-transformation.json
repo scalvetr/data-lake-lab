@@ -1,0 +1,18 @@
+[{
+  "operation": "shift",
+  "spec": {
+    "ayto:idSensor": "sensor",
+    "ayto:carga": "load",
+    "ayto:ocupacion": "occupation",
+    "ayto:intensidad": "intensity",
+    "dc:identifier": "event_id",
+    "dc:modified": "event_ts"
+  }
+}, {
+  "operation": "modify-overwrite-beta",
+  "spec": {
+    "load": "=toInteger",
+    "occupation": "=toInteger",
+    "intensity": "=toInteger"
+  }
+}]

@@ -3,11 +3,12 @@
   "name": "enriched_sensor_event",
   "type": "record",
   "fields": [
-    {"name": "load", "type":"int" },
+    { "name": "sensor", "type":"string" },
+    { "name": "load", "type":"int" },
     { "name": "occupation", "type":"int" },
     { "name": "intensity", "type":"int" },
-    { "name": "eventTime", "type":"string" },
-    { "name": "sensor", "type":"string" },
+    { "name": "event_id", "type":"string" },
+    { "name": "event_ts", "type":"string" },
     {
       "name": "location",
       "type": [ "null", {
