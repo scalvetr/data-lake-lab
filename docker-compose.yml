@@ -71,7 +71,7 @@ services:
       - ./ws/hadoop/namenode/name:/hadoop/dfs/name
       - ./ws/hadoop/namenode/logs:/opt/hadoop-2.7.4/logs
     environment:
-      - CLUSTER_NAME=big-data-lab
+      CLUSTER_NAME: "big-data-lab"
     ports:
       - "50070:50070"
     networks:
@@ -145,7 +145,10 @@ services:
     volumes:
       - ./ws/shared:/opt/workspace
       - ./ws/hive/data:/opt/derby-data
+      - ./ws/hive/logs:/opt/hive/logs
+      - ./ws/hive/conf/hive-log4j2.properties:/opt/hive/conf/hive-log4j2.properties
     environment:
+      HADOOP_USER_NAME: root
       CORE_CONF_fs_defaultFS: "hdfs://hdfs-namenode:8020"
       CORE_CONF_hadoop_http_staticuser_user: "root"
       HDFS_CONF_dfs_webhdfs_enabled: "true"
