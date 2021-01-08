@@ -70,7 +70,7 @@ kafka-console-consumer.sh --bootstrap-server kafka:9092 --topic santander-in-tra
 
 ```
 
-## Elastiksearch Commands
+## Elasticsearch Commands
 ```shell
 curl http://localhost:9200/ | jq
 curl http://localhost:9200/_cat/indices
