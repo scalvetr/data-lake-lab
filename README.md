@@ -19,6 +19,11 @@
 
 ## Installation
 
+### Start
+```shell
+docker-compose up
+```
+
 ### Reset
 ```shell
 docker-compose down
@@ -42,23 +47,11 @@ sudo rm -fR ws/zepelin/logs/*
 sudo rm -fR ws/zookeeper/logs/*
 ```
 
-```shell
-mkdir -p ws
-chmod a+rw -fR ws/
-
-docker-compose build
-docker-compose up -d
-
-mkdir -p ws/zeppelin/notebooks/
-chmod 777 -fR ws/zeppelin/notebooks/
-cd ws/zeppelin/notebooks/
-git init
-
-```
 ## Nifi Commands
 ```shell
 docker exec big-data-lab-nifi tail -f /opt/nifi/nifi-current/logs/nifi-app.log
 ```
+
 ## Kafka Commands
 ```shell
 # enter kafka server docker container
