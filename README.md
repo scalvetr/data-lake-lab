@@ -11,11 +11,11 @@
 | hadoop-datanode | bde2020/hadoop-datanode:2.0.0-hadoop2.7.4-java8 | 50075 | /opt/workspace,/opt/hadoop-2.7.4/logs,/hadoop/dfs/data |
 | spark-master    | bde2020/spark-master:2.4.0-hadoop2.7 | 8080 | /opt/workspace,/spark/logs |
 | spark-worker    | bde2020/spark-worker:2.4.0-hadoop2.7 | 8081 | /opt/workspace,/spark/logs |
-| hive            | custom-image -> apache-hive-2.3.7    | 9083,10000,10001,10002 | /opt/workspace,/opt/derby-data,/opt/hive/logs |
+| hive            | local-image -> apache-hive-2.3.7    | 9083,10000,10001,10002 | /opt/workspace,/opt/derby-data,/opt/hive/logs |
 | elasticsearch   | elasticsearch/elasticsearch:7.10.1   | 9200,9300        | /opt/workspace,/usr/share/elasticsearch/logs |
 | kibana          | kibana/kibana:7.10.1                 | 5601             | /opt/workspace,/opt/kibana/logs |
 | mysql           | mysql:8.0.22                         | 3306             | /var/log/mysql,/var/lib/mysql,/etc/mysql/conf.d |
-| zeppelin        | apache/zeppelin:0.9.0                | 9080             | /opt/workspace,/zeppelin/notebook,/zeppelin/logs |
+| zeppelin        | local-image -> apache/zeppelin:0.9.0 | 9080             | /opt/workspace,/zeppelin/notebook,/zeppelin/logs |
 
 ## Installation
 
