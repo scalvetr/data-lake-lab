@@ -90,7 +90,7 @@ curl -X DELETE "http://localhost:9200/sensors-santander-traffic"
 ## Zeppelin Commands
 ```shell
 # execute every time there are changes in the interpreters
-docker cp big-data-lab-zeppelin:/zeppelin/conf/interpreter-override.json ws/zeppelin/conf/interpreter.json
+docker cp big-data-lab-zeppelin:/zeppelin/conf/interpreter.json ws/zeppelin/conf/interpreter.json
 ```
 
 ## Hive Commands
